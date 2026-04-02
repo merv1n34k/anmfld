@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[oc]
+build/
+dist/
+*.egg-info
+.venv/
+uv.lock
+
+# OS
+.DS_Store
+
+# Generated
+*.step
+*.png
+
+# Conference docs
+*.pdf
+
+# IDE / tools
+.claude/
