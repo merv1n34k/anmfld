@@ -141,12 +141,14 @@ Check mesh quality:
 1. Model: **Volume of Fluid**
 2. VOF Sub-Models:
    - Number of Eulerian Phases: **2**
-   - VOF Scheme: **Explicit**
+   - VOF Scheme: **Implicit**
    - Check: **Implicit Body Force**
    - Interface Modeling Type: **Sharp**
    - Volume Fraction Cutoff: **1e-06** (default)
-   - Courant Number: **0.25**
+   - Courant Number: **0.25** (still used for interface tracking stability)
 3. Click **OK**
+
+> **Why Implicit?** Implicit VOF allows larger stable time steps while still supporting Geo-Reconstruct for sharp interface tracking. Explicit VOF is slightly sharper but requires strict Co < 0.25 and tiny time steps. For this geometry with high velocity gradients at the throat, implicit provides better stability with negligible interface quality loss.
 
 ### 5.2 Viscous Model
 **Setup → Models → Viscous → Edit...**
@@ -279,6 +281,8 @@ Same as inlet_water_left:
    - (Oil is the backflow phase — correct, since oil is continuous)
 4. Click **OK**
 
+> **Why 0 Pa gauge?** With velocity inlets, the outlet pressure is just a reference point — the solver computes the pressure field needed to satisfy continuity. The real backpressure from downstream resistance (collection tubing, other generators) is implicitly captured in the computed pressure drop. The absolute pressure level does not affect the flow field for incompressible fluids. If you know the actual outlet gauge pressure from Fluigent readings, you can set it here instead, but the flow results will be identical.
+
 ### 9.7 walls
 1. Type: **wall**
 2. Click **Edit...**
@@ -320,7 +324,7 @@ Same as inlet_water_left:
 | Density | **1** |
 | Body Forces | **1** |
 | Momentum | **0.7** |
-| Volume Fraction | **0.5** (default for explicit VOF) |
+| Volume Fraction | **0.5** |
 
 ### PISO Settings (under Pressure-Velocity Coupling):
 - Skewness Correction: **1**
@@ -368,6 +372,7 @@ Same as inlet_water_left:
 
 **Solution → Initialization**
 
+### 13.1 Standard Initialization (domain filled with oil)
 1. Method: **Standard Initialization**
 2. Compute From: **inlet_oil_left** (or All Zones)
 3. Set values:
@@ -377,7 +382,26 @@ Same as inlet_water_left:
    - **water** Volume Fraction: **0** (entire domain starts filled with oil)
 4. Click **Initialize**
 
-Verify: the entire domain should be blue (oil) with no water.
+### 13.2 Patch Aqueous Channels with Water
+The three water inlet channels must be pre-filled with water (as in reality — the aqueous lines are primed before the experiment starts).
+
+1. **Solution → Initialization → Patch...**
+2. Phase: **water**
+3. Variable: **Volume Fraction**
+4. Value: **1**
+5. **Registers to Patch**: you need to define a region covering the aqueous channels. Two methods:
+
+   **Method A — Adapt/Mark Cells by Region:**
+   1. **Adapt → Region...** (or **Cell Registers → New → Region**)
+   2. Define a bounding box that covers the three water inlet channels (from the top of the domain down to the T-junction where oil enters). Check your geometry coordinates.
+   3. Click **Mark** → this creates a cell register
+   4. Back in **Patch**: select the register → set water VF = 1 → click **Patch**
+
+   **Method B — If channels are separate cell zones:**
+   If the mesh was split into separate zones per channel during meshing, you can patch each zone directly.
+
+6. Click **Patch** → Click **Close**
+7. Verify: display water VF contour — the top channels (water inlets down to oil junction) should show VF = 1 (red), everything else VF = 0 (blue).
 
 ---
 
@@ -519,6 +543,7 @@ Pressure:           PRESTO!
 Momentum:           Second Order Upwind
 Volume Fraction:    Geo-Reconstruct
 Transient:          First Order Implicit
+VOF Scheme:         Implicit
 Time step:          variable (Co = 0.25) or fixed 2e-7 s
 Max iter/step:      25
 Total time:         0.01 s (10 ms)

@@ -251,12 +251,12 @@ Navigate: **Models → Multiphase → Volume of Fluid**
 
 | Setting | Value | Notes |
 |---|---|---|
-| Scheme | **Explicit** | Better interface sharpness |
+| Scheme | **Implicit** | Stable with Geo-Reconstruct, allows larger time steps |
 | Number of phases | **2** | Oil + Water (see note below) |
 | Body force formulation | **Implicit body force** | Stability with surface tension |
 | Interface modeling | **Sharp** | |
 | Volume fraction cutoff | 1 × 10⁻⁶ | Default |
-| Courant number | 0.25 | For explicit VOF auto time-stepping |
+| Courant number | 0.25 | For VOF interface tracking stability |
 
 > **Why 2 phases, not 3?** All 3 aqueous streams have identical physical properties. The bead content (2.8 um particles at low concentration) does not affect bulk flow properties. Model as a single "water" phase. Bead statistics are computed analytically from the dilution ratio.
 
@@ -325,13 +325,14 @@ Create two custom materials (Materials → Create/Edit):
 1. **Initialize** entire domain with **oil** (Phase 1 VF = 1, Phase 2 VF = 0)
 2. Use **Standard Initialization**
 3. Set velocity = 0 everywhere, pressure = 0
+4. **Patch** aqueous inlet channels with water (VF = 1) — the three top channels (from inlets down to the oil T-junction) should be pre-filled with water, matching the real priming procedure
 
 ### 4.9 Time Stepping
 
 | Parameter | Value | Notes |
 |---|---|---|
 | Time step method | **Variable** | Controlled by global Courant number |
-| Global Courant number | **0.25** | For explicit VOF stability |
+| Global Courant number | **0.25** | For VOF interface tracking stability |
 | OR fixed time step | **2 × 10⁻⁷ s** (0.2 us) | Alternative (smaller than before due to higher velocities) |
 | Max iterations per step | 20-30 | Per time step |
 | Total simulation time | **0.005-0.01 s** (5-10 ms) | ~20-40 droplets for statistics |
@@ -593,7 +594,7 @@ Report mesh independence if medium→fine difference < 5% in L_d and f.
 - [ ] Name `outlet` and `walls`
 - [ ] Mesh: quad-dominant, 1-2 um at throat, 5 um elsewhere
 - [ ] Scale mesh to meters (×10⁻⁶) in Fluent
-- [ ] VOF: 2 phases, explicit, Geo-Reconstruct
+- [ ] VOF: 2 phases, implicit, Geo-Reconstruct
 - [ ] Materials: oil (ρ=1614, µ=1.24e-3), water-mix (ρ=1015, µ=3.0e-3)
 - [ ] IFT: σ = 3.0 × 10⁻³ N/m
 - [ ] BCs: oil v=0.333, water-center v=0.0715, water-side v=0.0893

@@ -61,7 +61,7 @@ A 3^2 full-factorial DoE was conducted with two factors: oil flow rate Q_oil (15
 
 ### 2.5. ANSYS Fluent Setup
 
-A 2D planar transient simulation was performed using ANSYS Fluent with the explicit VOF scheme and Geo-Reconstruct interface tracking. Material properties are summarized in Table 2.
+A 2D planar transient simulation was performed using ANSYS Fluent with the implicit VOF scheme and Geo-Reconstruct interface tracking. Material properties are summarized in Table 2.
 
 **Table 2. Material properties and simulation parameters.**
 
@@ -73,7 +73,7 @@ A 2D planar transient simulation was performed using ANSYS Fluent with the expli
 
 The Bio-Rad oil is based on HFE-7500 with PFPE-PEG surfactant [11]. Aqueous viscosity was estimated from Poloxamer 188 solution data [7] with BSA correction [8]. The interfacial tension (3.0 mN/m) is a mid-range estimate from measurements of similar PFPE-PEG/HFE-7500 systems [9,10].
 
-Boundary conditions: velocity inlets for oil (0.333 m/s each, VF_oil = 1), center water (0.0715 m/s, VF_water = 1), and side water (0.0893 m/s each, VF_water = 1); pressure outlet (0 Pa gauge); no-slip walls with 150 degree water contact angle. The domain was initialized with oil. PISO pressure-velocity coupling with PRESTO! pressure discretization was used. Variable time stepping with a global Courant number of 0.25 ensured stability. Each run simulated 7-10 ms (>20 droplets).
+Boundary conditions: velocity inlets for oil (0.333 m/s each, VF_oil = 1), center water (0.0715 m/s, VF_water = 1), and side water (0.0893 m/s each, VF_water = 1); pressure outlet (0 Pa gauge); no-slip walls with 150 degree water contact angle. The domain was initialized with oil, with the aqueous inlet channels patched to water VF = 1. PISO pressure-velocity coupling with PRESTO! pressure discretization was used. Variable time stepping with a global Courant number of 0.25 ensured stability. Each run simulated 7-10 ms (>20 droplets).
 
 A mesh independence study was performed at three resolutions (throat element size: 5, 2, 1 um).
 
